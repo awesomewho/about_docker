@@ -1,0 +1,75 @@
+                                 天池Docker练习场操作方法
+一　安装Docker
+1. 卸载已经安装的旧版本
+sudo apt-get remove docker.io docker-engine
+
+２．安装秘钥管理与下载工具包
+sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+
+3.下载秘钥
+# 官方Docker秘钥添加方式
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+
+# 中科大Docker秘钥添加方式
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+
+４．添加Docker软件源到source.list
+＃ 添加中科大Ｄocker软件源到source.list
+echo "deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+# 添加官方Docker源到source.list
+echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+＃ 由于我使用的是Deepin　Linux　无法通过　$(lsb_release -cs)获取到版本信息，需要手动替换版本版本信息
+# Ｄeepin系统获取Ｄebian版本
+markco@markco:~$ cat /etc/debian_version 
+10.8
+
+＃ Debian 10.8 版本代号为buster，将$(lsb_release -cs)手动替换为buster
+echo "deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/debian buster stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+# 安装Docker
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+# 启动Docker
+sudo systemctl enable docker
+sudo systemctl start docker
+
+# 更换国内Docker加速器
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://registry.docker-cn.com"]
+}
+EOF
+
+# 重新加载Docker配置
+sudo systemctl reload docker
+
+二　阿里云配置镜像仓库(region-上海)
+＃　配置方法见天池官网配置教程　https://tianchi.aliyun.com/competition/entrance/231759/tab/226
+
+三　构建镜像并推送
+1. 创建本地Dockerfile Python代码　run.sh文件,具体代码信息见:https://github.com/awesomewho/docker.git
+mkdir docker/docker/tianchi_submit_demo
+
+2. Dockerfile最重要的是安装Python依赖包numpy和pandas包,requirements.txt指定numpy和pandas版本信息
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+
+３. Python代码本地测试需要自行添加/tcdata/num_list.csv测试数据,pandas读取数据时需要忽略csv header信息
+
+4. 本地构建镜像并推送
+sudo docker build -t registry.cn-shanghai.aliyuncs.com/awesomewho/container:1.0 .
+
+# 登录远程镜像仓库
+sudo docker login --username=markizhou@163.com registry.cn-shanghai.aliyuncs.com
+
+# 推送镜像到远程仓库
+sudo docker push registry.cn-shanghai.aliyuncs.com/awesomewho/container:1.0
+
+四　天池参赛页面提交结果
+# 配置镜像为在阿里云创建的镜像仓库路径,然后提交等待结果.
+
+总结:
+题目并不难,最主要的是提交之前一定要在本地通过添加测试数据进行测试,Docker容器的排错可以通过docker exec -it container_id /bin/bash进入容器执行代码,看结果是否达到预期.
+
