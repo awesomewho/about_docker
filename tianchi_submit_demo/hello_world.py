@@ -8,7 +8,7 @@ import json
 # 终端输出Hello world
 print("Hello world")
 
-# 天池会提供num_list.csv数据,所以脚步只需要读取csv数据列进行求和,需要将csv　header忽略
+# 天池会提供num_list.csv数据,所以脚本只需要读取csv数据列进行求和,需要将csv　header忽略
 data = pd.read_csv("/tcdata/num_list.csv", header=None)
 total = 0
 for i, num in enumerate(data[0]):
