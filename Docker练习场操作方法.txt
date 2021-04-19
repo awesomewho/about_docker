@@ -1,0 +1,50 @@
+                                      Docker练习场操作记录
+一. 本地环境安装Docker环境
+
+1. 卸载已经安装的旧版本
+sudo apt-get remove docker.io docker-engine
+
+２．安装秘钥管理与下载工具包
+sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+
+3.下载秘钥
+# 官方Docker秘钥
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+
+# 国内网络推荐使用国内docker软件源,本次使用中科大Docker秘钥
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+
+４．添加Docker软件源到source.list
+＃ 添加中科大Ｄocker软件源到source.list
+echo "deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+# 添加官方Docker源到source.list
+echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+＃ 由于我使用的是Deepin　Linux　无法通过　$(lsb_release -cs)获取到版本信息，需要手动替换版本版本信息
+# Ｄeepin系统获取Ｄebian版本
+markco@markco:~$ cat /etc/debian_version 
+10.8
+
+＃ Debian 10.8 版本代号为buster，将$(lsb_release -cs)手动替换为buster
+echo "deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/debian buster stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+5. 安装Docker
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+# 启动Docker
+sudo systemctl enable docker
+sudo systemctl start docker
+
+# 更换国内Docker加速器
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://registry.docker-cn.com"]
+}
+EOF
+
+# 重新加载Docker配置
+sudo systemctl reload docker
+
+二. 
